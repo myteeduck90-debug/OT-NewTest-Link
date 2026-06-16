@@ -1036,18 +1036,12 @@ function setFormat(fmt) {
 const ACTIVE_FILTERS = { nfl:true,mlb:true,nba:true,MLB:true,AAA:true,AA:true,'A+':true,A:true,'nba-main':true,'nba-gleague':true };
 
 function toggleFilter(key) {
-  ACTIVE_FILTERS[key] = !ACTIVE_FILTERS[key];
-  const pill = document.querySelector(`.filter-pill[data-filter="${key}"]`);
-  if (pill) pill.classList.toggle('on', ACTIVE_FILTERS[key]);
-  // Sync sport-level CALC_SPORTS so getCalcPool() respects the filter bar
-  if (key === 'nfl' || key === 'mlb' || key === 'nba') {
-    CALC_SPORTS[key] = ACTIVE_FILTERS[key];
-    const card = document.querySelector(`.sport-toggle-card[data-sport="${key}"]`);
-    if (card) card.classList.toggle('active', ACTIVE_FILTERS[key]);
-  }
-  updateCalcPoolInfo();
+  ACTIVE_FILTERS[key]=!ACTIVE_FILTERS[key];
+  const pill=document.querySelector(`.filter-pill[data-filter="${key}"]`);
+  if(pill) pill.classList.toggle('on',ACTIVE_FILTERS[key]);
   updateFilterBtn();
 }
+
 
 // Handles the level dropdown in the filter bar.
 // Sets ACTIVE_FILTERS for all MLB and NBA level keys based on selected option.
@@ -1111,13 +1105,9 @@ const CALC_SPORTS = { nfl:true, mlb:true, nba:true };
 
 function toggleCalcSport(sport) {
   CALC_SPORTS[sport] = !CALC_SPORTS[sport];
-  ACTIVE_FILTERS[sport] = CALC_SPORTS[sport];
   const card = document.querySelector(`.sport-toggle-card[data-sport="${sport}"]`);
-  if (card) card.classList.toggle('active', CALC_SPORTS[sport]);
-  const pill = document.querySelector(`.filter-pill[data-filter="${sport}"]`);
-  if (pill) pill.classList.toggle('on', ACTIVE_FILTERS[sport]);
+  if(card) card.classList.toggle('active', CALC_SPORTS[sport]);
   updateCalcPoolInfo();
-  updateFilterBtn();
 }
 
 function updateCalcPoolInfo() {
@@ -1486,22 +1476,16 @@ function renderDD(side){
   const t1=allMatched.filter(p=>getName(p)===query);
   const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
   const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-  const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
-  const sportKey = sportKeywords[query];
+const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
+  const sportKey=sportKeywords[query];
   let ranked;
-  if (sportKey) {
-    // Sport keyword: show ALL players from that sport sorted by value, picks last
-    const pool = getCalcPool();
-    const used = [...TRADE.a, ...TRADE.b].map(p => p.id);
-    const sportPlayers = pool
-      .filter(p => !used.includes(p.id) && p.age !== 'PICK' && p.sport === sportKey)
-      .sort((a, b) => b.value - a.value);
-    const sportPicks = pool
-      .filter(p => !used.includes(p.id) && p.age === 'PICK' && p.id.startsWith(`pick-${sportKey}`))
-      .sort((a, b) => b.value - a.value);
-    ranked = [...sportPlayers, ...sportPicks];
+  if(sportKey){
+    // Sport keyword search: assets from that sport come first, then others
+    const inSport=[...t1,...t2,...t3].filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
+    const others=[...t1,...t2,...t3].filter(p=>p.sport!==sportKey&&!(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
+    ranked=[...inSport,...others];
   } else {
-    ranked = [...t1, ...t2, ...t3];
+    ranked=[...t1,...t2,...t3];
   }
   if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try adjusting filters or sport toggles</div>`;ddEl.classList.add('open');return;}
  const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
