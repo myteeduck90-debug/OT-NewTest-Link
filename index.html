@@ -1486,7 +1486,6 @@ function renderDD(side){
   const t1=allMatched.filter(p=>getName(p)===query);
   const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
   const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey = sportKeywords[query];
   let ranked;
