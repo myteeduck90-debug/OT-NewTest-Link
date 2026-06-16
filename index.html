@@ -390,6 +390,26 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   .pos-pill{padding:6px 13px}
   /* Mini buttons in saved trades */
   .mini-btn{padding:7px 10px}
+   /* Team B scroll hint — mobile only */
+  /* Team B anchor is mobile-only; hidden on desktop where both panels show side-by-side */
+  .trade-side-b-anchor{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--gold);
+    cursor:pointer;
+    letter-spacing:.5px;
+    animation:pulse-hint 3s ease-in-out infinite;
+  }
+  @keyframes pulse-hint{0%,100%{opacity:.7}50%{opacity:1}}
+
+}
 @media(max-width:480px){
   .verdict-scores{grid-template-columns:1fr}
   .logo-beta{display:none}
@@ -404,7 +424,6 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   /* Sync and Filters stay compact beside format strip */
   .hdr-btn{padding:4px 8px;font-size:9px}
 }
-
 </style>
 </head>
 <body>
@@ -450,15 +469,16 @@ main{max-width:1440px;margin:0 auto;padding:20px}
            Changing this updates ACTIVE_FILTERS for all relevant level keys. -->
       <select class="level-select" id="level-select" onchange="setLevelFilter(this.value)">
         <option value="all">All Levels</option>
-        <optgroup label="MLB Levels">
+        <optgroup label="── MLB ──">
           <option value="MLB">MLB Majors only</option>
           <option value="MLB+AAA">MLB + AAA</option>
           <option value="minors">All Minors (MLB+AAA+AA+A++A)</option>
         </optgroup>
-        <optgroup label="NBA Levels">
-          <option value="nba-main">NBA Roster only</option>
+        <optgroup label="── NBA ──">
+          <option value="nba-main">NBA Roster only (no G-League)</option>
         </optgroup>
       </select>
+
     </div>
   </div>
 </div>
@@ -537,9 +557,10 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 
   <!-- Trade panels -->
   <div class="trade-arena">
-    <div class="trade-side">
+    <div class="trade-side" id="trade-side-a">
       <div class="trade-side-header">
         <span class="team-label" style="color:var(--multi)">Team A Receives</span>
+
         <span class="team-total" id="total-a">0</span>
       </div>
       <div class="search-area">
@@ -549,9 +570,13 @@ main{max-width:1440px;margin:0 auto;padding:20px}
       </div>
       <div class="players-list" id="list-a"><div class="empty-msg">Search and add players to Team A</div></div>
     </div>
-    <div class="trade-side">
+<div class="trade-side-b-anchor" id="trade-side-b-anchor" onclick="document.getElementById('trade-side-b').scrollIntoView({behavior:'smooth',block:'start'})">
+      ▼ &nbsp;Team B Receives — tap to jump
+    </div>
+    <div class="trade-side" id="trade-side-b">
       <div class="trade-side-header">
         <span class="team-label" style="color:var(--gold)">Team B Receives</span>
+
         <span class="team-total" id="total-b">0</span>
       </div>
       <div class="search-area">
@@ -998,11 +1023,6 @@ function setFormat(fmt) {
     const b=document.getElementById(`${s}-format-badge`);
     if(b){b.textContent=fmt.toUpperCase();b.className=`format-badge ${fmt}`;}
   });
-  // Update hub page header format indicators (Option A — visible on each hub page)
-  ['nfl','mlb','nba'].forEach(s=>{
-    const ind=document.getElementById(`hub-fmt-${s}`);
-    if(ind){ind.textContent=fmt.toUpperCase();ind.className=`fmt-label ${fmt}`;}
-  });
   // Re-render open rankings
   const active=document.querySelector('.main-tab.active')?.dataset.page;
   if(['nfl','mlb','nba'].includes(active)) renderHubRankings(active);
@@ -1019,7 +1039,9 @@ function toggleFilter(key) {
   ACTIVE_FILTERS[key]=!ACTIVE_FILTERS[key];
   const pill=document.querySelector(`.filter-pill[data-filter="${key}"]`);
   if(pill) pill.classList.toggle('on',ACTIVE_FILTERS[key]);
+  updateFilterBtn();
 }
+
 
 // Handles the level dropdown in the filter bar.
 // Sets ACTIVE_FILTERS for all MLB and NBA level keys based on selected option.
@@ -1047,12 +1069,22 @@ function setLevelFilter(value) {
     ACTIVE_FILTERS['nba-main'] = true;
     ACTIVE_FILTERS['nba-gleague'] = false;
   }
+  updateCalcPoolInfo();
+  updateFilterBtn();
 }
+
 
 function toggleFilters() {
   const bar=document.getElementById('filter-bar'), btn=document.getElementById('filter-btn');
   bar.classList.toggle('open');
   btn.classList.toggle('active',bar.classList.contains('open'));
+}
+function updateFilterBtn() {
+  const defaults={nfl:true,mlb:true,nba:true,MLB:true,AAA:true,AA:true,'A+':true,A:true,'nba-main':true,'nba-gleague':true};
+  const dirty=Object.keys(defaults).some(k=>ACTIVE_FILTERS[k]!==defaults[k]);
+  const btn=document.getElementById('filter-btn');
+  if(btn) btn.textContent=dirty?'⚙ Filters ·':'⚙ Filters';
+  if(btn) btn.classList.toggle('active',dirty||document.getElementById('filter-bar').classList.contains('open'));
 }
 
 function passesFilter(p) {
@@ -1444,16 +1476,28 @@ function renderDD(side){
   const t1=allMatched.filter(p=>getName(p)===query);
   const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
   const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-  const ranked=[...t1,...t2,...t3];
+const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
+  const sportKey=sportKeywords[query];
+  let ranked;
+  if(sportKey){
+    // Sport keyword search: assets from that sport come first, then others
+    const inSport=[...t1,...t2,...t3].filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
+    const others=[...t1,...t2,...t3].filter(p=>p.sport!==sportKey&&!(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
+    ranked=[...inSport,...others];
+  } else {
+    ranked=[...t1,...t2,...t3];
+  }
   if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try adjusting filters or sport toggles</div>`;ddEl.classList.add('open');return;}
-  const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
-  const picks=ranked.filter(p=>p.age==='PICK').slice(0,8);
+ const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
+  // Show hidden rounds (4-5) only when query explicitly targets them
+  const wantsHidden=/round\s*[45]|[45]th|rd\s*[45]/i.test(query);
+  const allPicks=ranked.filter(p=>p.age==='PICK'&&(wantsHidden||!p.defaultHidden));
   let html='';
   if(players.length)html+=`<div class="dd-section-label">Players</div>`+players.map(ddItemHTML).join('');
-  if(picks.length){
-    // Group picks by year with lightweight year dividers for readability
+  if(allPicks.length){
+    // Group by year first, then cap at 3 picks per year to keep dropdown manageable
     const picksByYear={};
-    picks.forEach(p=>{
+    allPicks.forEach(p=>{
       const m=p.displayName.match(/^(\d{4})/);
       const yr=m?m[1]:'Other';
       if(!picksByYear[yr])picksByYear[yr]=[];
@@ -1461,7 +1505,7 @@ function renderDD(side){
     });
     Object.keys(picksByYear).sort().forEach(yr=>{
       html+=`<div class="dd-year-divider">${yr} Picks</div>`;
-      html+=picksByYear[yr].map(ddItemHTML).join('');
+      html+=picksByYear[yr].slice(0,9).map(ddItemHTML).join('');
     });
   }
   ddEl.innerHTML=html;ddEl.classList.add('open');
