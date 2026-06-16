@@ -258,7 +258,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 .mini-btn:hover{border-color:var(--multi);color:var(--multi)}
 .mini-btn.del:hover{border-color:var(--lose);color:var(--lose)}
 .saved-empty{padding:18px;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text3)}
-
+.trade-side-b-anchor{display:none}
 /* ──────────────────────────────────────────
    CONTENT HUB (NFL / MLB / NBA pages)
    ────────────────────────────────────────── */
@@ -1040,6 +1040,11 @@ function toggleFilter(key) {
   const pill=document.querySelector(`.filter-pill[data-filter="${key}"]`);
   if(pill) pill.classList.toggle('on',ACTIVE_FILTERS[key]);
   updateFilterBtn();
+  // Refresh any open dropdown immediately
+  ['a','b'].forEach(s=>{
+    const dd=document.getElementById(`dd-${s}`);
+    if(dd&&dd.classList.contains('open')) renderDD(s);
+  });
 }
 
 
@@ -1071,6 +1076,10 @@ function setLevelFilter(value) {
   }
   updateCalcPoolInfo();
   updateFilterBtn();
+  ['a','b'].forEach(s=>{
+    const dd=document.getElementById(`dd-${s}`);
+    if(dd&&dd.classList.contains('open')) renderDD(s);
+  });
 }
 
 
@@ -1446,7 +1455,7 @@ function getCalcPool(){
   ['nfl','mlb','nba'].forEach(s=>{
     if(!CALC_SPORTS[s]) return;
     pool.push(...DB[s].filter(passesFilter));
-    pool.push(...(PICKS[s]||[]));
+    pool.push(...(PICKS[s]||[]).filter(p=>ACTIVE_FILTERS[p.sport]!==false));
   });
   return pool;
 }
@@ -1471,20 +1480,20 @@ function renderDD(side){
   }
   const words=query.split(/\s+/);
   const getName=p=>(p.displayName||'').toLowerCase();
-  // Three-tier priority: exact → starts with → contains. Prevents garbage ordering.
-  const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
-  const t1=allMatched.filter(p=>getName(p)===query);
-  const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
-  const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
+  const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey=sportKeywords[query];
   let ranked;
   if(sportKey){
-    // Sport keyword search: assets from that sport come first, then others
-    const inSport=[...t1,...t2,...t3].filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    const others=[...t1,...t2,...t3].filter(p=>p.sport!==sportKey&&!(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    ranked=[...inSport,...others];
+    // Sport keyword: skip name-match entirely — return all assets of that sport sorted by value
+    ranked=pool
+      .filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)))
+      .sort((a,b)=>(b.value||0)-(a.value||0));
   } else {
+    // Three-tier priority: exact → starts with → contains
+    const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
+    const t1=allMatched.filter(p=>getName(p)===query);
+    const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
+    const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
     ranked=[...t1,...t2,...t3];
   }
   if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try adjusting filters or sport toggles</div>`;ddEl.classList.add('open');return;}
