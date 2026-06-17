@@ -1458,10 +1458,12 @@ const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey=sportKeywords[query];
   let ranked;
   if(sportKey){
-    // Sport keyword search: assets from that sport come first, then others
-    const inSport=[...t1,...t2,...t3].filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    const others=[...t1,...t2,...t3].filter(p=>p.sport!==sportKey&&!(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    ranked=[...inSport,...others];
+    // Sport keyword: bypass name-match entirely — pull all assets of that sport from the full pool.
+    // This prevents players from other sports whose names incidentally contain "nba"/"nfl"/"mlb"
+    // as substrings (e.g. Conor Stei-nba-ugh) from appearing in results.
+    ranked=pool
+      .filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)))
+      .sort((a,b)=>(b.value||0)-(a.value||0));
   } else {
     ranked=[...t1,...t2,...t3];
   }
