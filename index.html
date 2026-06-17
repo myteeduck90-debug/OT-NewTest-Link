@@ -390,6 +390,25 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   .pos-pill{padding:6px 13px}
   /* Mini buttons in saved trades */
   .mini-btn{padding:7px 10px}
+   /* Team B scroll hint — mobile only */
+  /* Team B anchor is mobile-only; hidden on desktop where both panels show side-by-side */
+  .trade-side-b-anchor{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:10px;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--gold);
+    cursor:pointer;
+    letter-spacing:.5px;
+    animation:pulse-hint 3s ease-in-out infinite;
+  }
+  @keyframes pulse-hint{0%,100%{opacity:.7}50%{opacity:1}}
+
 }
 @media(max-width:480px){
   .verdict-scores{grid-template-columns:1fr}
@@ -550,6 +569,9 @@ main{max-width:1440px;margin:0 auto;padding:20px}
         <div class="search-dropdown" id="dd-a"></div>
       </div>
       <div class="players-list" id="list-a"><div class="empty-msg">Search and add players to Team A</div></div>
+    </div>
+<div class="trade-side-b-anchor" id="trade-side-b-anchor" onclick="document.getElementById('trade-side-b').scrollIntoView({behavior:'smooth',block:'start'})">
+      ▼ &nbsp;Team B Receives — tap to jump
     </div>
     <div class="trade-side" id="trade-side-b">
       <div class="trade-side-header">
@@ -1447,58 +1469,44 @@ function renderDD(side){
     ddEl.innerHTML=`<div class="dd-section-label">Top Players by Value</div>`+top.map(ddItemHTML).join('');
     ddEl.classList.add('open');return;
   }
-  const words=query.split(/\s+/);
+const words=query.split(/\s+/);
   const getName=p=>(p.displayName||'').toLowerCase();
-  // Three-tier priority: exact → starts with → contains. Prevents garbage ordering.
-  const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
-  const t1=allMatched.filter(p=>getName(p)===query);
-  const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
-  const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
+  const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey=sportKeywords[query];
   let ranked;
   if(sportKey){
-    // Sport keyword search: assets from that sport come first, then others
-    const inSport=[...t1,...t2,...t3].filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    const others=[...t1,...t2,...t3].filter(p=>p.sport!==sportKey&&!(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)));
-    ranked=[...inSport,...others];
+    // Sport keyword: skip name-match entirely — return all assets of that sport sorted by value
+    ranked=pool
+      .filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)))
+      .sort((a,b)=>(b.value||0)-(a.value||0));
   } else {
+    // Three-tier priority: exact → starts with → contains
+    const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
+    const t1=allMatched.filter(p=>getName(p)===query);
+    const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
+    const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
     ranked=[...t1,...t2,...t3];
   }
   if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try adjusting filters or sport toggles</div>`;ddEl.classList.add('open');return;}
-  const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
+ const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
   // Show hidden rounds (4-5) only when query explicitly targets them
   const wantsHidden=/round\s*[45]|[45]th|rd\s*[45]/i.test(query);
   const allPicks=ranked.filter(p=>p.age==='PICK'&&(wantsHidden||!p.defaultHidden));
   let html='';
   if(players.length)html+=`<div class="dd-section-label">Players</div>`+players.map(ddItemHTML).join('');
   if(allPicks.length){
-    // When query is a 4-digit year, group by sport so each sport's picks are clearly separated.
-    // For all other queries (sport name, "pick", etc.) group by year as before.
-    const isYearQuery=/^\d{4}$/.test(query);
-    if(isYearQuery){
-      const sportOrder=['nfl','mlb','nba'];
-      const sportLabel={nfl:'NFL PICKS',mlb:'MLB PICKS',nba:'NBA PICKS'};
-      sportOrder.forEach(s=>{
-        const sp=allPicks.filter(p=>p.sport===s);
-        if(!sp.length)return;
-        html+=`<div class="dd-section-label">${sportLabel[s]}</div>`;
-        html+=sp.slice(0,9).map(ddItemHTML).join('');
-      });
-    } else {
-      // Group by year — existing behavior for sport/round/mixed queries
-      const picksByYear={};
-      allPicks.forEach(p=>{
-        const m=p.displayName.match(/^(\d{4})/);
-        const yr=m?m[1]:'Other';
-        if(!picksByYear[yr])picksByYear[yr]=[];
-        picksByYear[yr].push(p);
-      });
-      Object.keys(picksByYear).sort().forEach(yr=>{
-        html+=`<div class="dd-year-divider">${yr} Picks</div>`;
-        html+=picksByYear[yr].slice(0,9).map(ddItemHTML).join('');
-      });
-    }
+    // Group by year first, then cap at 3 picks per year to keep dropdown manageable
+    const picksByYear={};
+    allPicks.forEach(p=>{
+      const m=p.displayName.match(/^(\d{4})/);
+      const yr=m?m[1]:'Other';
+      if(!picksByYear[yr])picksByYear[yr]=[];
+      picksByYear[yr].push(p);
+    });
+    Object.keys(picksByYear).sort().forEach(yr=>{
+      html+=`<div class="dd-year-divider">${yr} Picks</div>`;
+      html+=picksByYear[yr].slice(0,9).map(ddItemHTML).join('');
+    });
   }
   ddEl.innerHTML=html;ddEl.classList.add('open');
 }
