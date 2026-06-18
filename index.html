@@ -64,22 +64,30 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 .ad-leaderboard{width:100%;max-width:728px;height:90px;margin:10px auto}
 .ad-banner{width:100%;height:60px;margin:14px 0 0}
 
-/* ── FILTER BAR ── */
-.filter-bar{background:var(--surface2);border-bottom:1px solid var(--border);padding:0 20px;overflow:hidden;max-height:0;transition:max-height .3s ease,padding .3s ease}
-.filter-bar.open{max-height:220px;padding:14px 20px}
-.filter-inner{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start}
-.filter-group{display:flex;flex-direction:column;gap:6px}
-.fg-label{font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600}
-.fg-pills{display:flex;gap:5px;flex-wrap:wrap}
-.filter-pill{background:var(--surface3);border:1px solid var(--border);color:var(--text3);padding:4px 10px;border-radius:20px;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:.5px;transition:all .15s;user-select:none}
-.filter-pill.on{border-color:currentColor}
-.filter-pill[data-filter="nfl"].on{color:var(--nfl);background:var(--nfl-soft)}
-.filter-pill[data-filter="mlb"].on{color:var(--mlb);background:var(--mlb-soft)}
-.filter-pill[data-filter="nba"].on{color:var(--nba);background:var(--nba-soft)}
-.filter-pill[data-filter="MLB"].on{color:var(--mlb);background:var(--mlb-soft)}
-.filter-pill[data-filter="AAA"].on,.filter-pill[data-filter="AA"].on,.filter-pill[data-filter="A+"].on,.filter-pill[data-filter="A"].on{color:var(--gold);background:var(--gold-soft)}
-.filter-pill[data-filter="nba-main"].on{color:var(--nba);background:var(--nba-soft)}
-.filter-pill[data-filter="nba-gleague"].on{color:rgba(244,104,26,.6);background:rgba(244,104,26,.08);border-color:rgba(244,104,26,.3)}
+/* ── PROSPECT TOGGLE CARDS ── */
+/* Compact binary toggles for asset-level inclusion. Same visual language as sport tiles. */
+.prospect-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.prospect-card{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 12px;border-radius:var(--radius);
+  border:2px solid var(--border);background:var(--surface2);
+  cursor:pointer;transition:all .2s;user-select:none;
+}
+.prospect-card:hover{border-color:var(--border2)}
+.prospect-card .stc-name{font-family:var(--font-display);font-size:12px;letter-spacing:.5px;color:var(--text3)}
+.prospect-card.active .stc-name{color:var(--text)}
+.prospect-card.active[data-prospect="milb"]{border-color:var(--gold);background:var(--gold-soft)}
+.prospect-card.active[data-prospect="milb"] .stc-name{color:var(--gold)}
+.prospect-card.active[data-prospect="milb"] .stc-dot{background:var(--gold);border-color:transparent}
+.prospect-card.active[data-prospect="gleague"]{border-color:rgba(244,104,26,.5);background:rgba(244,104,26,.08)}
+.prospect-card.active[data-prospect="gleague"] .stc-name{color:rgba(244,104,26,.9)}
+.prospect-card.active[data-prospect="gleague"] .stc-dot{background:rgba(244,104,26,.8);border-color:transparent}
+
+/* ── SEARCH HINT (empty-state dropdown) ── */
+.dd-hint{padding:12px 14px;pointer-events:none;user-select:none}
+.dd-hint-title{font-family:var(--font-mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:8px;font-weight:600}
+.dd-hint-row{font-family:var(--font-mono);font-size:11px;color:var(--text3);line-height:2;display:flex;align-items:center;gap:6px}
+.dd-hint-kw{font-family:var(--font-mono);font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600}
 
 /* ── MAIN NAV TABS ── */
 /* These are the top-level feature tabs: Calculator | NFL | MLB | NBA | Add Player */
@@ -342,16 +350,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 .toast.ok{border-color:var(--win);color:var(--win)}
 .toast.err{border-color:var(--lose);color:var(--lose)}
 
-/* ── LEVEL DROPDOWN (replaces MLB/NBA level pill groups in filter bar) ── */
-.level-select{
-  background:var(--surface3);border:1px solid var(--border);
-  color:var(--text2);padding:5px 10px;border-radius:var(--radius-sm);
-  font-family:var(--font-mono);font-size:10px;cursor:pointer;
-  outline:none;transition:border-color .15s;
-  /* matches the visual weight of the sport pills */
-}
-.level-select:focus{border-color:var(--multi);color:var(--text)}
-.level-select option{background:var(--surface2);color:var(--text)}
+
 
 /* ── PICK YEAR DIVIDER ── */
 /* Lightweight visual separator between pick years in the dropdown */
@@ -374,7 +373,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   .ctrl-btn{padding:12px 18px;font-size:11px}
   main{padding:12px}
   header{padding:0 12px;height:auto;min-height:58px;flex-wrap:wrap;gap:8px;padding-top:8px;padding-bottom:8px}
-  .main-tabs,.filter-bar{padding-left:12px;padding-right:12px}
+  .main-tabs{padding-left:12px;padding-right:12px}
   /* Format strip: visible on mobile, wraps below logo if needed */
   .format-strip{display:flex}
   .header-right{gap:6px;flex-wrap:wrap}
@@ -382,8 +381,6 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   /* Sport toggle cards: larger touch area on mobile */
   .sport-toggle-card{min-width:100px;padding:10px 12px}
   .stc-dot{width:10px;height:10px}
-  /* Filter pills: larger touch targets */
-  .filter-pill{padding:7px 13px;font-size:10px}
   /* Player card remove button: larger touch target */
   .pc-remove{padding:6px 8px;font-size:16px}
   /* Pos pills in hub: larger tap area */
@@ -402,8 +399,6 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   .format-strip{flex:1;justify-content:center}
   /* Hide status text, keep dot — saves ~60px of label space */
   #status-text{display:none}
-  /* Sync and Filters stay compact beside format strip */
-  .hdr-btn{padding:4px 8px;font-size:9px}
 }
 </style>
 </head>
@@ -428,41 +423,8 @@ main{max-width:1440px;margin:0 auto;padding:20px}
       <div class="status-dot loading" id="status-dot"></div>
       <span id="status-text">Loading…</span>
     </div>
-    <button class="hdr-btn" onclick="syncRosters()">↻ Sync</button>
-    <button class="hdr-btn" id="filter-btn" onclick="toggleFilters()">⚙ Filters</button>
   </div>
 </header>
-
-<!-- FILTER BAR — toggles sports and levels visible in search -->
-<div class="filter-bar" id="filter-bar">
-  <div class="filter-inner">
-    <div class="filter-group">
-      <div class="fg-label">Sports</div>
-      <div class="fg-pills">
-        <span class="filter-pill on" data-filter="nfl" onclick="toggleFilter('nfl')">🏈 NFL</span>
-        <span class="filter-pill on" data-filter="mlb" onclick="toggleFilter('mlb')">⚾ MLB</span>
-        <span class="filter-pill on" data-filter="nba" onclick="toggleFilter('nba')">🏀 NBA</span>
-      </div>
-    </div>
-    <div class="filter-group">
-      <div class="fg-label">Level</div>
-      <!-- Single dropdown replaces the MLB Levels and NBA Levels pill groups.
-           Changing this updates ACTIVE_FILTERS for all relevant level keys. -->
-      <select class="level-select" id="level-select" onchange="setLevelFilter(this.value)">
-        <option value="all">All Levels</option>
-        <optgroup label="── MLB ──">
-          <option value="MLB">MLB Majors only</option>
-          <option value="MLB+AAA">MLB + AAA</option>
-          <option value="minors">All Minors (MLB+AAA+AA+A++A)</option>
-        </optgroup>
-        <optgroup label="── NBA ──">
-          <option value="nba-main">NBA Roster only (no G-League)</option>
-        </optgroup>
-      </select>
-
-    </div>
-  </div>
-</div>
 
 <!-- AD SLOT — leaderboard banner (set display:flex in CSS to activate) -->
 <div class="ad-slot ad-leaderboard" id="ad-top">AD SPACE · 728×90</div>
@@ -533,6 +495,17 @@ main{max-width:1440px;margin:0 auto;padding:20px}
         <div class="stc-dot"></div>
       </div>
     </div>
+    <!-- Prospect controls — compact toggle cards, same visual language as sport tiles -->
+    <div class="prospect-row">
+      <div class="prospect-card active" id="pc-milb" data-prospect="milb" onclick="toggleProspect('milb')">
+        <div class="stc-info"><div class="stc-name">MiLB Prospects</div></div>
+        <div class="stc-dot"></div>
+      </div>
+      <div class="prospect-card active" id="pc-gleague" data-prospect="gleague" onclick="toggleProspect('gleague')">
+        <div class="stc-info"><div class="stc-name">G-League</div></div>
+        <div class="stc-dot"></div>
+      </div>
+    </div>
     <div class="calc-pool-info" id="calc-pool-info">Loading player data…</div>
   </div>
 
@@ -545,7 +518,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
         <span class="team-total" id="total-a">0</span>
       </div>
       <div class="search-area">
-        <input class="search-input" id="srch-a" type="text" placeholder="Search players or picks…"
+        <input class="search-input" id="srch-a" type="text" placeholder="Search by name, sport, or year…"
           autocomplete="off" oninput="doSearch('a')" onfocus="openDD('a')" onblur="delayClose('a')">
         <div class="search-dropdown" id="dd-a"></div>
       </div>
@@ -558,7 +531,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
         <span class="team-total" id="total-b">0</span>
       </div>
       <div class="search-area">
-        <input class="search-input" id="srch-b" type="text" placeholder="Search players or picks…"
+        <input class="search-input" id="srch-b" type="text" placeholder="Search by name, sport, or year…"
           autocomplete="off" oninput="doSearch('b')" onfocus="openDD('b')" onblur="delayClose('b')">
         <div class="search-dropdown" id="dd-b"></div>
       </div>
@@ -1013,57 +986,7 @@ function setFormat(fmt) {
 // ================================================================
 const ACTIVE_FILTERS = { nfl:true,mlb:true,nba:true,MLB:true,AAA:true,AA:true,'A+':true,A:true,'nba-main':true,'nba-gleague':true };
 
-function toggleFilter(key) {
-  ACTIVE_FILTERS[key]=!ACTIVE_FILTERS[key];
-  const pill=document.querySelector(`.filter-pill[data-filter="${key}"]`);
-  if(pill) pill.classList.toggle('on',ACTIVE_FILTERS[key]);
-  updateFilterBtn();
-}
 
-
-// Handles the level dropdown in the filter bar.
-// Sets ACTIVE_FILTERS for all MLB and NBA level keys based on selected option.
-function setLevelFilter(value) {
-  // MLB level keys
-  const mlbLevels = ['MLB','AAA','AA','A+','A'];
-  // NBA level keys
-  const nbaLevels = ['nba-main','nba-gleague'];
-
-  if(value === 'all') {
-    // All levels on
-    mlbLevels.forEach(k => { ACTIVE_FILTERS[k] = true; });
-    nbaLevels.forEach(k => { ACTIVE_FILTERS[k] = true; });
-  } else if(value === 'MLB') {
-    // MLB majors only, no minors, NBA unaffected
-    ACTIVE_FILTERS['MLB'] = true;
-    ['AAA','AA','A+','A'].forEach(k => { ACTIVE_FILTERS[k] = false; });
-  } else if(value === 'MLB+AAA') {
-    ACTIVE_FILTERS['MLB'] = true;
-    ACTIVE_FILTERS['AAA'] = true;
-    ['AA','A+','A'].forEach(k => { ACTIVE_FILTERS[k] = false; });
-  } else if(value === 'minors') {
-    mlbLevels.forEach(k => { ACTIVE_FILTERS[k] = true; });
-  } else if(value === 'nba-main') {
-    ACTIVE_FILTERS['nba-main'] = true;
-    ACTIVE_FILTERS['nba-gleague'] = false;
-  }
-  updateCalcPoolInfo();
-  updateFilterBtn();
-}
-
-
-function toggleFilters() {
-  const bar=document.getElementById('filter-bar'), btn=document.getElementById('filter-btn');
-  bar.classList.toggle('open');
-  btn.classList.toggle('active',bar.classList.contains('open'));
-}
-function updateFilterBtn() {
-  const defaults={nfl:true,mlb:true,nba:true,MLB:true,AAA:true,AA:true,'A+':true,A:true,'nba-main':true,'nba-gleague':true};
-  const dirty=Object.keys(defaults).some(k=>ACTIVE_FILTERS[k]!==defaults[k]);
-  const btn=document.getElementById('filter-btn');
-  if(btn) btn.textContent=dirty?'⚙ Filters ·':'⚙ Filters';
-  if(btn) btn.classList.toggle('active',dirty||document.getElementById('filter-bar').classList.contains('open'));
-}
 
 function passesFilter(p) {
   if(p.age==='PICK') return true;
@@ -1096,6 +1019,28 @@ function updateCalcPoolInfo() {
   const label = active.length === 3 ? 'All sports' : active.map(s=>sportNames[s]).join(' + ');
   const el = document.getElementById('calc-pool-info');
   if(el) el.textContent = `${label} · ${total.toLocaleString()} assets available`;
+}
+
+// ================================================================
+// === PROSPECT TOGGLES ===
+// Controls MiLB and G-League inclusion in the calculator pool.
+// Reads/writes ACTIVE_FILTERS keys used by passesFilter().
+// ================================================================
+function toggleProspect(type) {
+  if(type==='milb'){
+    // Use AAA as the proxy key — if AAA is on, all minor levels are on
+    const turningOn=!ACTIVE_FILTERS['AAA'];
+    ['AAA','AA','A+','A'].forEach(k=>{ ACTIVE_FILTERS[k]=turningOn; });
+    const card=document.getElementById('pc-milb');
+    if(card) card.classList.toggle('active',turningOn);
+  } else if(type==='gleague'){
+    ACTIVE_FILTERS['nba-gleague']=!ACTIVE_FILTERS['nba-gleague'];
+    const card=document.getElementById('pc-gleague');
+    if(card) card.classList.toggle('active',ACTIVE_FILTERS['nba-gleague']);
+  }
+  updateCalcPoolInfo();
+  // Refresh any open dropdown immediately
+  ['a','b'].forEach(s=>{ const dd=document.getElementById(`dd-${s}`); if(dd&&dd.classList.contains('open')) renderDD(s); });
 }
 
 // ================================================================
@@ -1158,10 +1103,10 @@ function buildPicks() {
     });
   }
 
-  // ── NBA: Rounds 1-2 standard (Early/Mid/Late), no hidden rounds ──
-  // Note: "Lottery" renamed to "Early" for consistency across all sports
+  // ── NBA: Rounds 1-2 slotted (Early/Mid/Late), no hidden rounds ──
+  // Round 2 values mirror NFL Rd 3 range — appropriate for NBA 2nds in dynasty
   const NBA_R1={early:8000,mid:5200,late:3600};
-  const NBA_R2=1200;
+  const NBA_R2={early:1400,mid:1000,late:700};
   for(let y=yr;y<=yr+3;y++){
     const d=y-yr;
     [['Early',NBA_R1.early],['Mid',NBA_R1.mid],['Late',NBA_R1.late]].forEach(([sl,base])=>{
@@ -1173,12 +1118,14 @@ function buildPicks() {
         dynastyValue:decay(base,d),value:decay(base,d),
       });
     });
-    picks.nba.push({
-      id:`pick-nba-${y}-2`,
-      displayName:`${y} NBA 2nd Rd Pick`,
-      sport:'nba',pos:'Rd 2',team:'DRAFT',age:'PICK',
-      defaultHidden:false,
-      dynastyValue:decay(NBA_R2,d),value:decay(NBA_R2,d),
+    [['Early',NBA_R2.early],['Mid',NBA_R2.mid],['Late',NBA_R2.late]].forEach(([sl,base])=>{
+      picks.nba.push({
+        id:`pick-nba-${y}-2-${sl}`,
+        displayName:`${y} NBA ${sl} 2nd Rd Pick`,
+        sport:'nba',pos:'Rd 2',team:sl,age:'PICK',
+        defaultHidden:false,
+        dynastyValue:decay(base,d),value:decay(base,d),
+      });
     });
   }
 
@@ -1424,7 +1371,7 @@ function getCalcPool(){
   ['nfl','mlb','nba'].forEach(s=>{
     if(!CALC_SPORTS[s]) return;
     pool.push(...DB[s].filter(passesFilter));
-    pool.push(...(PICKS[s]||[]));
+    pool.push(...(PICKS[s]||[]).filter(p=>ACTIVE_FILTERS[p.sport]!==false));
   });
   return pool;
 }
@@ -1441,54 +1388,90 @@ function renderDD(side){
   const ddEl=document.getElementById(`dd-${side}`);if(!ddEl)return;
   const used=[...TRADE.a,...TRADE.b].map(p=>p.id);
   const pool=getCalcPool().filter(p=>!used.includes(p.id));
+
+  // ── Empty search: show instructional hint only, no assets ──
   if(!query){
-    const top=pool.filter(p=>p.age!=='PICK'&&!p.defaultHidden).slice(0,10);
-    if(!top.length){ddEl.classList.remove('open');return;}
-    ddEl.innerHTML=`<div class="dd-section-label">Top Players by Value</div>`+top.map(ddItemHTML).join('');
+    const yr=new Date().getFullYear();
+    ddEl.innerHTML=`
+      <div class="dd-hint">
+        <div class="dd-hint-title">Search by</div>
+        <div class="dd-hint-row">· Player Name &nbsp;<span style="color:var(--text3);font-size:10px">e.g. Mahomes, Ohtani</span></div>
+        <div class="dd-hint-row">· Sport &nbsp;<span class="dd-hint-kw" style="color:var(--nfl);background:var(--nfl-soft)">NFL</span> <span class="dd-hint-kw" style="color:var(--mlb);background:var(--mlb-soft)">MLB</span> <span class="dd-hint-kw" style="color:var(--nba);background:var(--nba-soft)">NBA</span></div>
+        <div class="dd-hint-row">· Draft Year &nbsp;<span class="dd-hint-kw" style="color:var(--gold);background:var(--gold-soft)">${yr}</span> <span class="dd-hint-kw" style="color:var(--gold);background:var(--gold-soft)">${yr+1}</span> <span class="dd-hint-kw" style="color:var(--gold);background:var(--gold-soft)">${yr+2}</span></div>
+      </div>`;
     ddEl.classList.add('open');return;
   }
+
   const words=query.split(/\s+/);
   const getName=p=>(p.displayName||'').toLowerCase();
-  // Three-tier priority: exact → starts with → contains. Prevents garbage ordering.
-  const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
-  const t1=allMatched.filter(p=>getName(p)===query);
-  const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
-  const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
-const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
+  const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey=sportKeywords[query];
   let ranked;
+
   if(sportKey){
-    // Sport keyword: bypass name-match entirely — pull all assets of that sport from the full pool.
-    // This prevents players from other sports whose names incidentally contain "nba"/"nfl"/"mlb"
+    // Sport keyword: bypass name-match entirely — pull all assets of that sport
+    // directly from pool. Prevents players whose names contain "nba"/"mlb"/"nfl"
     // as substrings (e.g. Conor Stei-nba-ugh) from appearing in results.
     ranked=pool
       .filter(p=>p.sport===sportKey||(p.age==='PICK'&&p.id.startsWith(`pick-${sportKey}`)))
       .sort((a,b)=>(b.value||0)-(a.value||0));
   } else {
+    // Three-tier priority: exact → starts with → contains
+    const allMatched=pool.filter(p=>words.every(w=>getName(p).includes(w)));
+    const t1=allMatched.filter(p=>getName(p)===query);
+    const t2=allMatched.filter(p=>getName(p).startsWith(query)&&getName(p)!==query);
+    const t3=allMatched.filter(p=>!getName(p).startsWith(query)&&getName(p)!==query);
     ranked=[...t1,...t2,...t3];
   }
-  if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try adjusting filters or sport toggles</div>`;ddEl.classList.add('open');return;}
+
+  if(!ranked.length){ddEl.innerHTML=`<div class="dd-no-results">No results — try a name, sport, or draft year</div>`;ddEl.classList.add('open');return;}
+
   const players=ranked.filter(p=>p.age!=='PICK').slice(0,10);
   // Show hidden rounds (4-5) only when query explicitly targets them
   const wantsHidden=/round\s*[45]|[45]th|rd\s*[45]/i.test(query);
   const allPicks=ranked.filter(p=>p.age==='PICK'&&(wantsHidden||!p.defaultHidden));
+
   let html='';
-  if(players.length)html+=`<div class="dd-section-label">Players</div>`+players.map(ddItemHTML).join('');
-  if(allPicks.length){
-    // When query is a 4-digit year, group by sport so each sport's picks are clearly separated.
-    // For all other queries (sport name, "pick", etc.) group by year as before.
-    const isYearQuery=/^\d{4}$/.test(query);
-    if(isYearQuery){
-      const sportOrder=['nfl','mlb','nba'];
-      const sportLabel={nfl:'NFL PICKS',mlb:'MLB PICKS',nba:'NBA PICKS'};
-      sportOrder.forEach(s=>{
-        const sp=allPicks.filter(p=>p.sport===s);
-        if(!sp.length)return;
-        html+=`<div class="dd-section-label">${sportLabel[s]}</div>`;
-        html+=sp.slice(0,9).map(ddItemHTML).join('');
+  const isYearQuery=/^\d{4}$/.test(query);
+
+  if(sportKey){
+    // Sport keyword: PICKS FIRST (year-grouped), then PLAYERS
+    if(allPicks.length){
+      const picksByYear={};
+      allPicks.forEach(p=>{
+        const m=p.displayName.match(/^(\d{4})/);
+        const yr=m?m[1]:'Other';
+        if(!picksByYear[yr])picksByYear[yr]=[];
+        picksByYear[yr].push(p);
       });
-    } else {
-      // Group by year — existing behavior for sport/round/mixed queries
+      html+=`<div class="dd-section-label">${sportKey.toUpperCase()} PICKS</div>`;
+      Object.keys(picksByYear).sort().forEach(yr=>{
+        html+=`<div class="dd-year-divider">${yr}</div>`;
+        html+=picksByYear[yr].slice(0,9).map(ddItemHTML).join('');
+      });
+    }
+    if(players.length){
+      html+=`<div class="dd-section-label">${sportKey.toUpperCase()} PLAYERS</div>`;
+      html+=players.map(ddItemHTML).join('');
+    }
+  } else if(isYearQuery){
+    // Year query: group picks by sport, no players section
+    const sportOrder=['nfl','mlb','nba'];
+    const sportLabel={nfl:'NFL PICKS',mlb:'MLB PICKS',nba:'NBA PICKS'};
+    sportOrder.forEach(s=>{
+      const sp=allPicks.filter(p=>p.sport===s);
+      if(!sp.length)return;
+      html+=`<div class="dd-section-label">${sportLabel[s]}</div>`;
+      html+=sp.slice(0,9).map(ddItemHTML).join('');
+    });
+    if(players.length){
+      html+=`<div class="dd-section-label">PLAYERS</div>`;
+      html+=players.map(ddItemHTML).join('');
+    }
+  } else {
+    // All other queries: players first, picks grouped by year
+    if(players.length) html+=`<div class="dd-section-label">Players</div>`+players.map(ddItemHTML).join('');
+    if(allPicks.length){
       const picksByYear={};
       allPicks.forEach(p=>{
         const m=p.displayName.match(/^(\d{4})/);
@@ -1502,6 +1485,7 @@ const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
       });
     }
   }
+
   ddEl.innerHTML=html;ddEl.classList.add('open');
 }
 
