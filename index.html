@@ -1068,6 +1068,29 @@ function buildPicks() {
   const yr=new Date().getFullYear();
   const decay=(val,yo)=>Math.round(val*Math.pow(0.85,yo));
   const ord=n=>(['th','st','nd','rd'][(n%100-20)%10]||['th','st','nd','rd'][n%100]||'th');
+  const words=['first','second','third','fourth','fifth'];
+  // Builds a searchable alias string for each pick — never shown to user, only matched against
+  const tokens=(sport,y,r,sl)=>{
+    const shortYr=String(y).slice(2);         // "26" from "2026"
+    const wordRd=words[r-1]||`${r}th`;        // "first","second","third"…
+    const slLow=sl.toLowerCase();             // "early","mid","late"
+    return [
+      // year variants
+      shortYr, String(y),
+      // round variants
+      `${r}${ord(r)}`, wordRd, `round ${r}`, `round ${wordRd}`, `${r}${ord(r)} round`,
+      // slot variants
+      slLow,
+      // sport
+      sport,
+      // general triggers
+      'pick','draft','rookie pick','draft pick',
+      // combined shorthand: "27 1st", "27 2nd", "early 1st", "mid 2nd"
+      `${shortYr} ${r}${ord(r)}`, `${slLow} ${r}${ord(r)}`, `${slLow} ${wordRd}`,
+      `${sport} ${r}${ord(r)}`, `${sport} ${wordRd}`,
+      `${y} ${sport} ${wordRd}`, `${y} ${sport} ${r}${ord(r)}`,
+    ].join(' ');
+  };
 
   // ── NFL: Rounds 1-3 standard, Rounds 4-5 hidden ──
   // Values: base × year decay (~15% per year out)
@@ -1090,6 +1113,7 @@ function buildPicks() {
           displayName:`${y} NFL ${sl} ${r}${ord(r)} Rd Pick`,
           sport:'nfl',pos:`Rd ${r}`,team:sl,age:'PICK',
           defaultHidden:hidden,
+          searchTokens:tokens('nfl',y,r,sl),
           dynastyValue:decay(base,d),value:decay(base,d),
         });
       });
@@ -1109,6 +1133,7 @@ function buildPicks() {
           displayName:`${y} MLB ${sl} ${r}${ord(r)} Rd Pick`,
           sport:'mlb',pos:`Rd ${r}`,team:sl,age:'PICK',
           defaultHidden:hidden,
+          searchTokens:tokens('mlb',y,r,sl),
           dynastyValue:decay(val,d),value:decay(val,d),
         });
       });
@@ -1127,6 +1152,7 @@ function buildPicks() {
         displayName:`${y} NBA ${sl} 1st Rd Pick`,
         sport:'nba',pos:'Rd 1',team:sl,age:'PICK',
         defaultHidden:false,
+        searchTokens:tokens('nba',y,1,sl),
         dynastyValue:decay(base,d),value:decay(base,d),
       });
     });
@@ -1136,6 +1162,7 @@ function buildPicks() {
         displayName:`${y} NBA ${sl} 2nd Rd Pick`,
         sport:'nba',pos:'Rd 2',team:sl,age:'PICK',
         defaultHidden:false,
+        searchTokens:tokens('nba',y,2,sl),
         dynastyValue:decay(base,d),value:decay(base,d),
       });
     });
@@ -1427,7 +1454,10 @@ function renderDD(side){
   }
 
   const words=query.split(/\s+/);
-  const getName=p=>(p.displayName||'').toLowerCase();
+  // For picks, also search against searchTokens (aliases). For players, displayName only.
+  const getName=p=>p.age==='PICK'
+    ? ((p.displayName||'')+(p.searchTokens?(' '+p.searchTokens):'')).toLowerCase()
+    : (p.displayName||'').toLowerCase();
   const sportKeywords={'nfl':'nfl','mlb':'mlb','nba':'nba'};
   const sportKey=sportKeywords[query];
   let ranked;
