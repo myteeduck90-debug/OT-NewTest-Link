@@ -66,7 +66,9 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 
 /* ── PROSPECT TOGGLE CARDS ── */
 /* Compact binary toggles for asset-level inclusion. Same visual language as sport tiles. */
-.prospect-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;padding-top:8px;border-top:2px solid var(--border);padding-left:160px}
+.sport-toggle-grid{display:grid;grid-template-columns:repeat(3,auto);gap:8px;justify-content:start}
+.sport-toggle-col{display:flex;flex-direction:column;gap:6px}
+.prospect-row{display:contents}
 .prospect-card{
   display:flex;align-items:center;gap:8px;
   padding:7px 12px;border-radius:var(--radius);
@@ -78,10 +80,8 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 .prospect-card.active .stc-name{color:var(--text)}
 .prospect-card.active[data-prospect="milb"]{border-color:var(--gold);background:var(--gold-soft)}
 .prospect-card.active[data-prospect="milb"] .stc-name{color:var(--gold)}
-.prospect-card.active[data-prospect="milb"] .stc-dot{background:var(--gold);border-color:transparent}
-.prospect-card.active[data-prospect="gleague"]{border-color:rgba(244,104,26,.5);background:rgba(244,104,26,.08)}
-.prospect-card.active[data-prospect="gleague"] .stc-name{color:rgba(244,104,26,.9)}
-.prospect-card.active[data-prospect="gleague"] .stc-dot{background:rgba(244,104,26,.8);border-color:transparent}
+.prospect-card.active[data-prospect="milb"] .stc-icon{opacity:1}
+.prospect-card:not(.active)[data-prospect="milb"] .stc-icon{opacity:.45}
 
 /* ── SEARCH HINT (empty-state dropdown) ── */
 .dd-hint{padding:12px 14px;pointer-events:none;user-select:none}
@@ -93,7 +93,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 /* These are the top-level feature tabs: Calculator | NFL | MLB | NBA | Add Player */
 .main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;scrollbar-width:none}
 .main-tabs::-webkit-scrollbar{display:none}
-.main-tab{display:flex;align-items:center;gap:6px;padding:13px 18px;border:none;background:none;font-family:var(--font-display);font-size:13px;letter-spacing:1px;color:var(--text3);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;position:relative;bottom:-1px}
+.main-tab{display:flex;align-items:center;gap:6px;padding:13px 18px;border:none;background:none;font-family:var(--font-display);font-size:13px;letter-spacing:1px;color:var(--text3);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;margin-bottom:-1px}
 .main-tab:not(.active):hover{color:var(--text2)}
 /* Calculator tab — blue */
 .main-tab[data-page="calc"].active{color:var(--multi);border-color:var(--multi);background:rgba(74,144,217,.06)}
@@ -139,12 +139,16 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 .sport-toggle-card.active[data-sport="nfl"] .stc-name{color:var(--nfl)}
 .sport-toggle-card.active[data-sport="mlb"] .stc-name{color:var(--mlb)}
 .sport-toggle-card.active[data-sport="nba"] .stc-name{color:var(--nba)}
-.stc-count{font-family:var(--font-mono);font-size:9px;color:var(--text3);margin-top:2px}
-.stc-dot{width:8px;height:8px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;transition:all .2s}
-.sport-toggle-card.active .stc-dot{border-color:transparent}
-.sport-toggle-card.active[data-sport="nfl"] .stc-dot{background:var(--nfl)}
-.sport-toggle-card.active[data-sport="mlb"] .stc-dot{background:var(--mlb)}
-.sport-toggle-card.active[data-sport="nba"] .stc-dot{background:var(--nba)}
+.stc-count{display:none}
+.stc-icon{font-size:13px;line-height:1;flex-shrink:0}
+.stc-icon .si-off{display:none}
+.stc-icon .si-on{display:inline}
+/* When card is NOT active, flip which span shows */
+.sport-toggle-card:not(.active) .stc-icon .si-on{display:none}
+.sport-toggle-card:not(.active) .stc-icon .si-off{display:inline}
+.prospect-card:not(.active) .stc-icon .si-on{display:none}
+.prospect-card:not(.active) .stc-icon .si-off{display:inline}
+#pc-gleague{display:none}
 
 .calc-pool-info{font-family:var(--font-mono);font-size:10px;color:var(--text2);margin-top:8px}
 
@@ -161,11 +165,11 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 .search-dropdown{position:absolute;top:100%;left:10px;right:10px;background:var(--surface3);border:1px solid var(--border2);border-radius:var(--radius-sm);max-height:280px;overflow-y:auto;z-index:500;box-shadow:0 16px 48px rgba(0,0,0,.6);display:none}
 .search-dropdown.open{display:block}
 .dd-section-label{padding:5px 11px;font-family:var(--font-mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--surface2);border-bottom:1px solid var(--border);font-weight:600}
-.dd-item{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;cursor:pointer;transition:background .12s;gap:8px}
+.dd-item{display:flex;align-items:center;justify-content:space-between;padding:6px 11px;cursor:pointer;transition:background .12s;gap:8px}
 .dd-item:hover{background:var(--border)}
 .dd-item-left{flex:1;min-width:0}
-.dd-item-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dd-item-meta{font-family:var(--font-mono);font-size:10px;color:var(--text2);margin-top:2px;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.dd-item-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-mono);color:var(--text)}
+.dd-item-meta{display:none}
 .dd-item-val{font-family:var(--font-mono);font-size:12px;color:var(--gold);flex-shrink:0}
 .dd-no-results{padding:13px 11px;font-family:var(--font-mono);font-size:11px;color:var(--text3);text-align:center}
 
@@ -377,12 +381,14 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   /* Format strip: visible on mobile, wraps below logo if needed */
   .format-strip{display:flex}
   .header-right{gap:6px;flex-wrap:wrap}
-  .sport-toggle-cards{gap:8px}
+  .sport-toggle-grid{gap:6px}
   /* Sport toggle cards: larger touch area on mobile */
   .sport-toggle-card{min-width:100px;padding:10px 12px}
   .stc-dot{width:10px;height:10px}
   /* Player card remove button: larger touch target */
   .pc-remove{padding:6px 8px;font-size:16px}
+  /* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px) */
+  .search-input{font-size:16px}
   /* Pos pills in hub: larger tap area */
   .pos-pill{padding:6px 13px}
   /* Mini buttons in saved trades */
@@ -390,6 +396,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 }
 @media(max-width:480px){
   .verdict-scores{grid-template-columns:1fr}
+  .sport-toggle-grid{grid-template-columns:1fr 1fr}
   .logo-beta{display:none}
   .hub-page-header{flex-direction:column;align-items:flex-start}
   /* Compact two-row header on small screens */
@@ -468,42 +475,42 @@ main{max-width:1440px;margin:0 auto;padding:20px}
 
   <!-- Sport toggle cards -->
   <div class="sport-toggle-row">
-    <div class="stl-label">SPORTS IN THIS TRADE — click to include or exclude</div>
-    <div class="sport-toggle-cards">
-      <div class="sport-toggle-card active" data-sport="nfl" onclick="toggleCalcSport('nfl')">
-        <span class="stc-emoji">🏈</span>
-        <div class="stc-info">
-          <div class="stc-name">NFL</div>
-          <div class="stc-count" id="stc-count-nfl">loading…</div>
+    <div class="stl-label">INCLUDE IN TRADE</div>
+    <div class="sport-toggle-grid">
+      <div class="sport-toggle-col">
+        <div class="sport-toggle-card active" data-sport="nfl" onclick="toggleCalcSport('nfl')">
+          <span class="stc-emoji">🏈</span>
+          <div class="stc-info">
+            <div class="stc-name">NFL</div>
+          </div>
+          <span class="stc-icon"><span class="si-on">✔️</span><span class="si-off">❌</span></span>
         </div>
-        <div class="stc-dot"></div>
       </div>
-      <div class="sport-toggle-card active" data-sport="mlb" onclick="toggleCalcSport('mlb')">
-        <span class="stc-emoji">⚾</span>
-        <div class="stc-info">
-          <div class="stc-name">MLB</div>
-          <div class="stc-count" id="stc-count-mlb">loading…</div>
+      <div class="sport-toggle-col">
+        <div class="sport-toggle-card active" data-sport="mlb" onclick="toggleCalcSport('mlb')">
+          <span class="stc-emoji">⚾</span>
+          <div class="stc-info">
+            <div class="stc-name">MLB</div>
+          </div>
+          <span class="stc-icon"><span class="si-on">✔️</span><span class="si-off">❌</span></span>
         </div>
-        <div class="stc-dot"></div>
-      </div>
-      <div class="sport-toggle-card active" data-sport="nba" onclick="toggleCalcSport('nba')">
-        <span class="stc-emoji">🏀</span>
-        <div class="stc-info">
-          <div class="stc-name">NBA</div>
-          <div class="stc-count" id="stc-count-nba">loading…</div>
+        <div class="prospect-card active" id="pc-milb" data-prospect="milb" onclick="toggleProspect('milb')">
+          <div class="stc-info"><div class="stc-name">MiLB Prospects</div></div>
+          <span class="stc-icon"><span class="si-on">✔️</span><span class="si-off">❌</span></span>
         </div>
-        <div class="stc-dot"></div>
       </div>
-    </div>
-    <!-- Prospect controls — compact toggle cards, same visual language as sport tiles -->
-    <div class="prospect-row">
-      <div class="prospect-card active" id="pc-milb" data-prospect="milb" onclick="toggleProspect('milb')">
-        <div class="stc-info"><div class="stc-name">MiLB Prospects</div></div>
-        <div class="stc-dot"></div>
-      </div>
-      <div class="prospect-card active" id="pc-gleague" data-prospect="gleague" onclick="toggleProspect('gleague')">
-        <div class="stc-info"><div class="stc-name">G-League</div></div>
-        <div class="stc-dot"></div>
+      <div class="sport-toggle-col">
+        <div class="sport-toggle-card active" data-sport="nba" onclick="toggleCalcSport('nba')">
+          <span class="stc-emoji">🏀</span>
+          <div class="stc-info">
+            <div class="stc-name">NBA</div>
+          </div>
+          <span class="stc-icon"><span class="si-on">✔️</span><span class="si-off">❌</span></span>
+        </div>
+        <div class="prospect-card active" id="pc-gleague" data-prospect="gleague" onclick="toggleProspect('gleague')">
+          <div class="stc-info"><div class="stc-name">G-League</div></div>
+          <span class="stc-icon"><span class="si-on">✔️</span><span class="si-off">❌</span></span>
+        </div>
       </div>
     </div>
     <div class="calc-pool-info" id="calc-pool-info">Loading player data…</div>
@@ -519,7 +526,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
       </div>
       <div class="search-area">
         <input class="search-input" id="srch-a" type="text" placeholder="Search by name, sport, or year…"
-          autocomplete="off" oninput="doSearch('a')" onfocus="openDD('a')" onblur="delayClose('a')">
+          autocomplete="off" oninput="doSearch('a')" onfocus="openDD('a')">
         <div class="search-dropdown" id="dd-a"></div>
       </div>
       <div class="players-list" id="list-a"><div class="empty-msg">Search and add players to Team A</div></div>
@@ -532,7 +539,7 @@ main{max-width:1440px;margin:0 auto;padding:20px}
       </div>
       <div class="search-area">
         <input class="search-input" id="srch-b" type="text" placeholder="Search by name, sport, or year…"
-          autocomplete="off" oninput="doSearch('b')" onfocus="openDD('b')" onblur="delayClose('b')">
+          autocomplete="off" oninput="doSearch('b')" onfocus="openDD('b')">
         <div class="search-dropdown" id="dd-b"></div>
       </div>
       <div class="players-list" id="list-b"><div class="empty-msg">Search and add players to Team B</div></div>
@@ -1016,9 +1023,14 @@ function updateCalcPoolInfo() {
   let total = 0;
   active.forEach(s => { total += DB[s].length + (PICKS[s]?.length||0); });
   const sportNames = { nfl:'NFL', mlb:'MLB', nba:'NBA' };
-  const label = active.length === 3 ? 'All sports' : active.map(s=>sportNames[s]).join(' + ');
+  const parts = active.map(s=>sportNames[s]);
+  // Append MiLB after MLB in label when MLB is active and MiLB prospects are included
+  if(ACTIVE_FILTERS['AAA'] && active.includes('mlb')){
+    const mlbIdx = parts.indexOf('MLB');
+    if(mlbIdx !== -1) parts.splice(mlbIdx+1, 0, 'MiLB');
+  }
   const el = document.getElementById('calc-pool-info');
-  if(el) el.textContent = `${label} · ${total.toLocaleString()} assets available`;
+  if(el) el.textContent = `${parts.join(' · ')} — ${total.toLocaleString()} assets`;
 }
 
 // ================================================================
@@ -1382,6 +1394,18 @@ const lastSide={a:'a',b:'b'};
 function doSearch(side){clearTimeout(DD_TIMERS[side]);DD_TIMERS[side]=setTimeout(()=>renderDD(side),100);}
 function openDD(side){lastSide.last=side;setTimeout(()=>renderDD(side),60);}
 function delayClose(side){clearTimeout(DD_TIMERS[`close-${side}`]);DD_TIMERS[`close-${side}`]=setTimeout(()=>{const el=document.getElementById(`dd-${side}`);if(el)el.classList.remove('open');},220);}
+// Close dropdowns only when tapping outside both the input and the dropdown.
+// This prevents keyboard dismissal on mobile from closing results.
+document.addEventListener('pointerdown',function(e){
+  ['a','b'].forEach(s=>{
+    const inp=document.getElementById(`srch-${s}`);
+    const dd=document.getElementById(`dd-${s}`);
+    if(!dd||!dd.classList.contains('open'))return;
+    if(inp&&inp.contains(e.target))return;
+    if(dd.contains(e.target))return;
+    dd.classList.remove('open');
+  });
+});
 
 function renderDD(side){
   const query=document.getElementById(`srch-${side}`)?.value.trim().toLowerCase()||'';
@@ -1492,26 +1516,21 @@ function renderDD(side){
 function ddItemHTML(p){
   const isPick=p.age==='PICK';
   const cs=isPick?'pick':p.sport;
-  const cl=isPick?'PICK':p.sport==='mlb'&&p.classification?p.classification.toUpperCase():p.sport.toUpperCase();
-  const lvl=p.level&&p.level!=='MLB'?` · <span style="color:var(--gold);font-size:9px">${p.level}</span>`:'';
-  const ag=!isPick&&p.age&&p.age!=='N/A'?` · Age ${p.age}`:'';
+  const sportLabel=isPick?'PICK':p.sport.toUpperCase();
+  const lvl=p.level&&p.level!=='MLB'?` · ${p.level}`:'';
 
   if(isPick){
-    // Picks: name only, no redundant meta line (name contains all the info)
+    // Single line: full pick name · value
     return `<div class="dd-item" onmousedown="addPlayer('${p.id}')">
-      <div class="dd-item-left">
-        <div class="dd-item-name">${p.displayName} <span class="chip chip-pick" style="font-size:8px">PICK</span></div>
-      </div>
+      <div class="dd-item-name" style="flex:1;min-width:0">${p.displayName}</div>
       <div class="dd-item-val">${(p.value||0).toLocaleString()}</div>
     </div>`;
   }
 
-  // Players: sport chip moves beside the name for quick multi-sport identification
+  // Single line: Name · SPORT · POS · TEAM[· LEVEL] · value
+  const meta=[sportLabel,p.pos,p.team||'',lvl?lvl.replace(' · ',''):''].filter(Boolean).join(' · ');
   return `<div class="dd-item" onmousedown="addPlayer('${p.id}')">
-    <div class="dd-item-left">
-      <div class="dd-item-name">${p.displayName} <span class="chip chip-${cs}" style="font-size:8px">${cl}</span></div>
-      <div class="dd-item-meta">${p.pos}${p.team?' · '+p.team:''}${lvl}${ag}</div>
-    </div>
+    <div class="dd-item-name" style="flex:1;min-width:0"><span style="color:var(--text);font-weight:600">${p.displayName}</span> <span style="color:var(--text2);font-size:10px">· ${meta}</span></div>
     <div class="dd-item-val">${(p.value||0).toLocaleString()}</div>
   </div>`;
 }
