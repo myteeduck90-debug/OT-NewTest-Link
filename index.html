@@ -91,7 +91,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 
 /* ── MAIN NAV TABS ── */
 /* These are the top-level feature tabs: Calculator | NFL | MLB | NBA | Add Player */
-.main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;scrollbar-width:none}
+.main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .main-tabs::-webkit-scrollbar{display:none}
 .main-tab{display:flex;align-items:center;gap:6px;padding:13px 18px;border:none;background:none;font-family:var(--font-display);font-size:13px;letter-spacing:1px;color:var(--text3);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;margin-bottom:-1px}
 .main-tab:not(.active):hover{color:var(--text2)}
@@ -1289,10 +1289,10 @@ function updateCounts(){
   document.getElementById('cnt-nfl').textContent=nfl||'—';
   document.getElementById('cnt-mlb').textContent=mlb||'—';
   document.getElementById('cnt-nba').textContent=nba||'—';
-  // Update sport toggle card counts
-  document.getElementById('stc-count-nfl').textContent=`${nfl.toLocaleString()} assets`;
-  document.getElementById('stc-count-mlb').textContent=`${mlb.toLocaleString()} assets`;
-  document.getElementById('stc-count-nba').textContent=`${nba.toLocaleString()} assets`;
+  // Update sport toggle card counts (elements may not exist if removed from HTML)
+  const ec1=document.getElementById('stc-count-nfl');if(ec1)ec1.textContent=`${nfl.toLocaleString()} assets`;
+  const ec2=document.getElementById('stc-count-mlb');if(ec2)ec2.textContent=`${mlb.toLocaleString()} assets`;
+  const ec3=document.getElementById('stc-count-nba');if(ec3)ec3.textContent=`${nba.toLocaleString()} assets`;
   updateCalcPoolInfo();
 }
 
