@@ -1021,7 +1021,7 @@ function toggleCalcSport(sport) {
 function updateCalcPoolInfo() {
   const active = Object.entries(CALC_SPORTS).filter(([,v])=>v).map(([k])=>k);
   let total = 0;
-  active.forEach(s => { total += DB[s].length + (PICKS[s]?.length||0); });
+  active.forEach(s => { total += DB[s].filter(passesFilter).length + (PICKS[s]?.length||0); });
   const sportNames = { nfl:'NFL', mlb:'MLB', nba:'NBA' };
   const parts = active.map(s=>sportNames[s]);
   // Append MiLB after MLB in label when MLB is active and MiLB prospects are included
