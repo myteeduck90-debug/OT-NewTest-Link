@@ -42,14 +42,6 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 .logo-trade{font-family:var(--font-display);font-size:22px;color:var(--multi)}
 .logo-beta{font-family:var(--font-mono);font-size:9px;color:var(--multi);border:1px solid var(--multi);padding:2px 5px;border-radius:3px;opacity:.8}
 .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.api-status{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;color:var(--text2)}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--win);animation:pulse-dot 2.5s infinite;flex-shrink:0}
-.status-dot.loading{background:var(--gold)}
-.status-dot.error{background:var(--lose);animation:none}
-@keyframes pulse-dot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(34,197,94,.4)}50%{opacity:.6;box-shadow:0 0 0 4px rgba(34,197,94,0)}}
-.hdr-btn{background:none;border:1px solid var(--border2);color:var(--text2);padding:5px 10px;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-mono);font-size:10px;transition:all .2s;white-space:nowrap}
-.hdr-btn:hover{border-color:var(--multi);color:var(--multi)}
-.hdr-btn.active{border-color:var(--multi);color:var(--multi);background:var(--multi-soft)}
 
 /* ── LEAGUE SELECTORS (Format + Team Size) ── */
 .league-selectors{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -60,7 +52,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
   background:var(--surface2);
   border:1px solid var(--border2);
   color:var(--text);
-  padding:5px 24px 5px 9px;
+  padding:4px 24px 4px 8px;
   border-radius:var(--radius-sm);
   cursor:pointer;
   font-family:var(--font-mono);
@@ -111,7 +103,7 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 /* These are the top-level feature tabs: Calculator | NFL | MLB | NBA | Add Player */
 .main-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 .main-tabs::-webkit-scrollbar{display:none}
-.main-tab{display:flex;align-items:center;gap:6px;padding:13px 18px;border:none;background:none;font-family:var(--font-display);font-size:13px;letter-spacing:1px;color:var(--text3);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;margin-bottom:-1px}
+.main-tab{display:flex;align-items:center;gap:6px;padding:9px 18px;border:none;background:none;font-family:var(--font-display);font-size:13px;letter-spacing:1px;color:var(--text3);border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;margin-bottom:-1px}
 .main-tab:not(.active):hover{color:var(--text2)}
 /* Calculator tab — blue */
 .main-tab[data-page="calc"].active{color:var(--multi);border-color:var(--multi);background:rgba(74,144,217,.06)}
@@ -424,8 +416,6 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   /* League selectors wrap and fill row on small screens */
   .league-selectors{width:100%;justify-content:flex-start}
   .league-select{flex:1}
-  /* Hide status text, keep dot — saves ~60px of label space */
-  #status-text{display:none}
 }
 </style>
 </head>
@@ -460,10 +450,6 @@ main{max-width:1440px;margin:0 auto;padding:20px}
           <option value="16">16 Teams</option>
         </select>
       </div>
-    </div>
-    <div class="api-status">
-      <div class="status-dot loading" id="status-dot"></div>
-      <span id="status-text">Loading…</span>
     </div>
   </div>
 </header>
@@ -1390,8 +1376,10 @@ async function syncRosters(){
   if(['nfl','mlb','nba'].includes(active)) renderHubRankings(active);
 }
 function setStatus(s,msg){
-  document.getElementById('status-dot').className='status-dot '+(s==='live'?'':s);
-  document.getElementById('status-text').textContent=msg;
+  const dot=document.getElementById('status-dot');
+  const txt=document.getElementById('status-text');
+  if(dot) dot.className='status-dot '+(s==='live'?'':s);
+  if(txt) txt.textContent=msg;
 }
 
 // ================================================================
