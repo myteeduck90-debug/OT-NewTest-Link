@@ -51,12 +51,30 @@ header{position:sticky;top:0;z-index:200;background:rgba(8,11,18,.96);backdrop-f
 .hdr-btn:hover{border-color:var(--multi);color:var(--multi)}
 .hdr-btn.active{border-color:var(--multi);color:var(--multi);background:var(--multi-soft)}
 
-/* ── FORMAT STRIP ── */
-.format-strip{display:flex;gap:3px;background:var(--surface2);border:1px solid var(--border);padding:3px;border-radius:var(--radius-sm)}
-.fmt-btn{background:none;border:none;color:var(--text3);padding:4px 10px;border-radius:4px;cursor:pointer;font-family:var(--font-mono);font-size:10px;letter-spacing:.5px;transition:all .15s;white-space:nowrap}
-.fmt-btn.active{background:var(--multi);color:#fff}
-.fmt-btn[data-fmt="redraft"].active{background:var(--nba)}
-.fmt-btn[data-fmt="keeper"].active{background:var(--nfl)}
+/* ── LEAGUE SELECTORS (Format + Team Size) ── */
+.league-selectors{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.league-select-group{display:flex;flex-direction:column;gap:2px}
+.league-select-label{font-family:var(--font-mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);padding-left:2px}
+.league-select{
+  appearance:none;-webkit-appearance:none;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  padding:5px 24px 5px 9px;
+  border-radius:var(--radius-sm);
+  cursor:pointer;
+  font-family:var(--font-mono);
+  font-size:10px;
+  letter-spacing:.5px;
+  transition:border-color .15s,background .15s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a8fa8'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 8px center;
+  min-width:90px;
+}
+.league-select:hover{border-color:var(--multi);color:var(--text)}
+.league-select:focus{outline:none;border-color:var(--multi);background-color:var(--surface3)}
+.league-select option{background:var(--surface2);color:var(--text)}
 
 /* ── AD SLOT ── */
 /* Set display:flex to activate. Drop your ad tag inside the div. */
@@ -379,7 +397,8 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   header{padding:0 12px;height:auto;min-height:58px;flex-wrap:wrap;gap:8px;padding-top:8px;padding-bottom:8px}
   .main-tabs{padding-left:12px;padding-right:12px}
   /* Format strip: visible on mobile, wraps below logo if needed */
-  .format-strip{display:flex}
+  .league-selectors{gap:6px}
+  .league-select{min-width:80px;font-size:10px}
   .header-right{gap:6px;flex-wrap:wrap}
   .sport-toggle-grid{gap:6px}
   /* Sport toggle cards: larger touch area on mobile */
@@ -402,8 +421,9 @@ main{max-width:1440px;margin:0 auto;padding:20px}
   /* Compact two-row header on small screens */
   header{padding-top:6px;padding-bottom:6px;gap:4px}
   .header-right{width:100%;gap:4px;align-items:center}
-  /* Format strip takes most of the row */
-  .format-strip{flex:1;justify-content:center}
+  /* League selectors wrap and fill row on small screens */
+  .league-selectors{width:100%;justify-content:flex-start}
+  .league-select{flex:1}
   /* Hide status text, keep dot — saves ~60px of label space */
   #status-text{display:none}
 }
@@ -420,11 +440,26 @@ main{max-width:1440px;margin:0 auto;padding:20px}
     <span class="logo-beta">BETA</span>
   </div>
   <div class="header-right">
-    <!-- FORMAT SELECTOR: affects all player values sitewide -->
-    <div class="format-strip" id="format-strip">
-      <button class="fmt-btn active" data-fmt="dynasty" onclick="setFormat('dynasty')">DYNASTY</button>
-      <button class="fmt-btn" data-fmt="redraft" onclick="setFormat('redraft')">REDRAFT</button>
-      <button class="fmt-btn" data-fmt="keeper" onclick="setFormat('keeper')">KEEPER</button>
+    <!-- LEAGUE SELECTORS: Format + Team Size -->
+    <div class="league-selectors" id="league-selectors">
+      <div class="league-select-group">
+        <span class="league-select-label">Format</span>
+        <select class="league-select" id="format-select" onchange="setFormat(this.value)">
+          <option value="dynasty">Dynasty</option>
+          <option value="redraft">Redraft</option>
+          <option value="keeper">Keeper</option>
+        </select>
+      </div>
+      <div class="league-select-group">
+        <span class="league-select-label">Team Size</span>
+        <select class="league-select" id="size-select" onchange="setTeamSize(Number(this.value))">
+          <option value="8">8 Teams</option>
+          <option value="10">10 Teams</option>
+          <option value="12" selected>12 Teams</option>
+          <option value="14">14 Teams</option>
+          <option value="16">16 Teams</option>
+        </select>
+      </div>
     </div>
     <div class="api-status">
       <div class="status-dot loading" id="status-dot"></div>
@@ -969,9 +1004,30 @@ function applyFormat(player, dynastyValue) {
   return mod ? Math.max(mod(player, dynastyValue), 100) : dynastyValue;
 }
 
+// ================================================================
+// === LEAGUE SETTINGS ===
+// Stores league context. Values are NOT applied yet.
+// All future valuation logic references getLeagueTeamSize() only.
+// Persists to localStorage key 'omnitrade_settings'.
+// ================================================================
+const LEAGUE_SETTINGS = JSON.parse(localStorage.getItem('omnitrade_settings')||'{}');
+if(!LEAGUE_SETTINGS.teamSize) LEAGUE_SETTINGS.teamSize = 12;
+
+function persistLeagueSettings(){ localStorage.setItem('omnitrade_settings',JSON.stringify(LEAGUE_SETTINGS)); }
+
+function getLeagueTeamSize(){ return LEAGUE_SETTINGS.teamSize; }
+
+function setTeamSize(n){
+  LEAGUE_SETTINGS.teamSize = n;
+  persistLeagueSettings();
+  const sel=document.getElementById('size-select');
+  if(sel) sel.value=String(n);
+}
+
 function setFormat(fmt) {
   currentFormat = fmt;
-  document.querySelectorAll('.fmt-btn').forEach(b=>b.classList.toggle('active',b.dataset.fmt===fmt));
+  const sel=document.getElementById('format-select');
+  if(sel) sel.value=fmt;
   ['nfl','mlb','nba'].forEach(sport=>{
     DB[sport].forEach(p=>{ p.value=applyFormat(p,p.dynastyValue); });
   });
@@ -1826,6 +1882,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
   PICKS=buildPicks();
   updateCounts();
   renderSaved();
+
+  // Restore persisted team size and sync both selects
+  setTeamSize(LEAGUE_SETTINGS.teamSize);
+  const fmtSel=document.getElementById('format-select');
+  if(fmtSel) fmtSel.value=currentFormat;
 
   // Attach focus listeners for tracking which side user is on
   ['a','b'].forEach(side=>{
