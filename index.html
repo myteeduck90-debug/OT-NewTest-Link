@@ -1024,6 +1024,7 @@ function setFormat(fmt) {
     DB[sport].forEach(p=>{ p.value=applyFormat(p,p.dynastyValue); });
   });
   updateTotals();
+  renderList('a');renderList('b');
   // Update format badges on content hub ranking headers
   ['nfl','mlb','nba'].forEach(s=>{
     const b=document.getElementById(`${s}-format-badge`);
