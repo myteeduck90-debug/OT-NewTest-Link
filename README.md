@@ -1,1 +1,1 @@
-OmniTrader
+OmniTrade UI Foundation v1
